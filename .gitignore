@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#가상환경 무시
+my_venv/
+venv/
+
 # C extensions
 *.so
 

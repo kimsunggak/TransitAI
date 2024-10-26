@@ -2,9 +2,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
 import pickle
-from DataPreprocessor import DataPreprocessor
+from Datapreprocessor import DataPreprocessor
 #데이터 불러오기
-df = pd.read_csv('C:/Users/superUser/Desktop/DalgujiPredictor/dataset/ki.csv')
+df = pd.read_csv('C:/Users/superUser/Desktop/D/dataset/ki.csv')
 # 데이터 준비
 data = pd.DataFrame(df)
 #데이터 전처리
