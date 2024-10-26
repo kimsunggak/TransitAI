@@ -6,7 +6,10 @@ __pycache__/
 #가상환경 무시
 my_venv/
 venv/
+.env/
 
+#환경변수 (혹시나)
+.env
 # C extensions
 *.so
 

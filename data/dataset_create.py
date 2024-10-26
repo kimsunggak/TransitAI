@@ -133,4 +133,4 @@ def generate_random_data():
 
 # 데이터 생성 및 저장
 df = generate_random_data()
-df.to_csv('dataset/ki.csv', index=False)
+df.to_csv('data/ki.csv', index=False)
