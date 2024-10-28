@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
 
 #데이터 불러오기
-df = pd.read_csv("ki.csv")
+df = pd.read_csv("data/ki.csv")
 #데이터 전처리
 
 # 시간을 분단위로 변환하는 함수 정의
