@@ -1,3 +1,4 @@
+#0~45 랜덤 수치 생성 후 변수별 가중치 부여하여 데이터 생성
 import pandas as pd
 import random
 from datetime import datetime, timedelta
