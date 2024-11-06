@@ -10,6 +10,10 @@
 .svn/
 migrate_working_dir/
 
+# Flutter 자동 생성 파일 제외
+**/generated_plugin_registrant.dart
+**/generated_plugins.dart
+
 # IntelliJ related
 *.iml
 *.ipr
