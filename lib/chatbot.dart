@@ -105,12 +105,12 @@ class ChatBubble extends StatelessWidget {
         mainAxisAlignment: isBot ? MainAxisAlignment.start : MainAxisAlignment.end,
         children: [
           if (isBot)
-            CircleAvatar(
+            const CircleAvatar(
               backgroundColor: Colors.white,
-              child: Image.asset(
-                'assets/bot_icon.png',
-                width: 24,  // 원하는 크기로 설정
-                height: 24,
+              child: Icon(
+                Icons.smart_toy, // 로봇 모양 아이콘
+                color: Colors.black,
+                size: 24,
               ),
             ),
           if (!isBot)
