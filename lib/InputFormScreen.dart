@@ -55,12 +55,12 @@ class InputFormScreenState extends State<InputFormScreen> {
                         left: 30,
                         child: Image.asset('assets/img/stop02.png', height: 100),
                       ),
-                      Positioned.fill(
-                        left:-500,
-                        top: 15,
-                        bottom: -42,
-                        child: Image.asset('assets/img/bus.png', height: 100),
-                      ),
+                      Positioned(
+                    left: 80,
+                    top: 8,
+                    bottom: -42,
+                    child: Image.asset('assets/img/bus.png', height: 50),
+                  ),
                       
                     ],
                   ),

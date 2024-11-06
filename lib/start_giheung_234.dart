@@ -152,11 +152,11 @@ class GiheungDepartureScreen234State extends State<GiheungDepartureScreen234> wi
                     children: [
                       _buildTimeButton(context, '07:50~09:05', ['07:50', '08:00', '08:10', '08:20', '08:30', '08:40', '08:50', '09:00']),
                       _buildTimeButton(context, '10시', ['10:40', '10:50']),
-                      _buildTimeButton(context, '11시', ['11:00', '11:10', '11:20']),
+                      _buildTimeButton(context, '11시', ['11:00', '11:10', '11:20', '11:30']),
                       _buildTimeButton(context, '12시', ['12:50']),
                       _buildTimeButton(context, '13시', ['13:10', '13:40']),
                       _buildTimeButton(context, '14시', ['14:00', '14:10', '14:20']),
-                      _buildTimeButton(context, '17시', ['17:00', '17:20', '17:40']),
+                      _buildTimeButton(context, '17시', ['17:00', '17:20', '17:30','17:40','17:50']),
                     ],
                   ),
                 ),

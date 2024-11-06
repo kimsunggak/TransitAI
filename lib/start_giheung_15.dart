@@ -127,19 +127,12 @@ class GiheungDepartureScreen15State extends State<GiheungDepartureScreen15> with
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 0.0, bottom: 16.0),
+            const Padding(
+              padding: EdgeInsets.only(top: 0.0, bottom: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Image.asset('assets/img/time.png', height: 30),
-                  const SizedBox(width: 8),
-                  const Text(
-                    '월요일, 금요일',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                ],
+                
               ),
             ),
             Expanded(

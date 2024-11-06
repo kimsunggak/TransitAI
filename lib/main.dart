@@ -5,6 +5,7 @@ import 'start_giheung_234.dart';  // 기흥역 출발 (화, 수, 목)
 import 'start_giheung_15.dart';  // 기흥역 출발 (월, 금)
 import 'time_detail_screen.dart';
 import 'chatbot.dart';  // 챗봇 화면 추가
+import 'pastgraph.dart';  // PastGraphScreen 화면 추가
 
 void main() {
   runApp(const MyApp());
@@ -28,7 +29,17 @@ class MyApp extends StatelessWidget {
         '/giheungDeparture15': (context) => const GiheungDepartureScreen15(),  // 기흥역 출발 (월, 금)
         '/timeDetail': (context) => const TimeDetailScreen(),  // 시간대 세부 페이지
         '/chatbot': (context) => ChatScreen(),  // 챗봇 화면 라우트 추가
-        //'/inputForm': (context) => const InputFormScreen(selectedTime: null),  // 입력 폼 페이지
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/pastGraph') {
+          final selectedTime = settings.arguments as TimeOfDay;
+          return MaterialPageRoute(
+            builder: (context) {
+              return PastGraphScreen(selectedTime: selectedTime);
+            },
+          );
+        }
+        return null;
       },
     );
   }
