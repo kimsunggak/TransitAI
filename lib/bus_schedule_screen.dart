@@ -72,7 +72,6 @@ class BusScheduleScreen extends StatelessWidget {
                           radius: const Radius.circular(10),
                           child: ListView(
                             children: [
-                              // "기흥역 출발" 버튼들만 남김
                               _buildCustomButton(
                                 context,
                                 '기흥역 출발(4번 출구)',
@@ -82,10 +81,17 @@ class BusScheduleScreen extends StatelessWidget {
                               ),
                               _buildCustomButton(
                                 context,
-                                '기흥역 출발(4번 출구)',
+                                '실시간 그래프',
                                 '화요일, 수요일, 목요일',
                                 const Color(0xFF2A69A1),
                                 '/giheungDeparture234',
+                              ),
+                              _buildCustomButton(
+                                context,
+                                'AI 택시 모집',
+                                '화요일, 수요일, 목요일',
+                                const Color(0xFF2A69A1),
+                                '/chatbot',  // 챗봇 라우트로 설정
                               ),
                             ],
                           ),
