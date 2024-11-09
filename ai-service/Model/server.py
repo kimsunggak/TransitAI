@@ -4,6 +4,12 @@ import xgboost as xgb
 from Datapreprocessor import DataPreprocessor
 import pandas as pd
 from pydantic import BaseModel
+from chatbot import chatbot_response
+
+# 챗봇 요청 데이터 모델 정의
+class ChatRequest(BaseModel):
+    message = str
+
 # FastAPI 앱 생성
 app = FastAPI()
 
@@ -48,3 +54,12 @@ async def predict(request: PredictionInput):
     
     # 예측 결과 반환
     return {"prediction": int(prediction[0])}
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    try:
+        user_message = request.message
+        bot_response = chatbot_response(user_message)
+        return {"response": bot_response}
+    except Exception as e:
+        print(f"챗봇 오류: {str(e)}")
+        
