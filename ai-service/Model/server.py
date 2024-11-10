@@ -8,7 +8,7 @@ from chatbot import chatbot_response
 
 # 챗봇 요청 데이터 모델 정의
 class ChatRequest(BaseModel):
-    message = str
+    message : str
 
 # FastAPI 앱 생성
 app = FastAPI()
