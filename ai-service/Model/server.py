@@ -5,6 +5,7 @@ from Datapreprocessor import DataPreprocessor
 import pandas as pd
 from pydantic import BaseModel
 from chatbot import chatbot_response
+from fastapi.responses import JSONResponse
 
 # 챗봇 요청 데이터 모델 정의
 class ChatRequest(BaseModel):
@@ -59,7 +60,11 @@ async def chat(request: ChatRequest):
     try:
         user_message = request.message
         bot_response = chatbot_response(user_message)
-        return {"response": bot_response}
+        # JSON 응답에 UTF-8 인코딩 설정
+        return JSONResponse(
+            content={"response": bot_response},
+            media_type="application/json; charset=utf-8"
+        )
     except Exception as e:
         print(f"챗봇 오류: {str(e)}")
         
