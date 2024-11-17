@@ -18,14 +18,14 @@ class BusScheduleScreen extends StatelessWidget {
                 children: [
                   Positioned(
                     top: 30,
-                    left: 25,
-                    child: Image.asset('assets/img/stop02.png', height: 100),
+                    right: 180,
+                    child: Image.asset('assets/img/stop.png', height: 100),
                   ),
                   Positioned(
-                    left: 80,
+                    right: 10,
                     top: 8,
                     bottom: -42,
-                    child: Image.asset('assets/img/bus.png', height: 120),
+                    child: Image.asset('assets/img/bus.png', height: 40),
                   ),
                 ],
               ),
@@ -94,11 +94,11 @@ class BusScheduleScreen extends StatelessWidget {
                             ),
                             // 실시간 그래프 버튼
                             _buildCustomButton(
-                              context,
-                              Icons.bar_chart, // 그래프 아이콘
-                              '과거 실시간 그래프',
-                              '',
-                              '/pastGraph', // 수정된 라우트
+                            context,
+                            Icons.bar_chart, // 그래프 아이콘
+                            '과거 실시간 그래프',
+                            '',
+                            '/realtimeGraph', // 네비게이션 라우트 이름
                               selectedTime: TimeOfDay.now(), // 현재 시간 기본값 전달
                             ),
                             // AI 택시 매칭 버튼
@@ -192,3 +192,4 @@ class BusScheduleScreen extends StatelessWidget {
     );
   }
 }
+

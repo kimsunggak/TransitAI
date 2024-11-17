@@ -63,7 +63,7 @@ class GiheungDepartureScreen15State extends State<GiheungDepartureScreen15> with
                       Positioned(
                         top: 40,
                         left: 40,
-                        child: Image.asset('assets/img/stop02.png', height: 80),
+                        child: Image.asset('assets/img/stop.png', height: 80),
                       ),
                       // 버스 이미지가 오른쪽에서 왼쪽으로 이동하는 애니메이션
                       AnimatedBuilder(

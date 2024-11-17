@@ -1,30 +1,27 @@
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // 날짜 형식 변환을 위해 사용
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:board_datetime_picker/board_datetime_picker.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'custom_time_picker.dart'; // CustomTimePicker import
 
 class InputFormScreen extends StatefulWidget {
   const InputFormScreen({super.key, required this.selectedTime});
-  // super parameter 사용
-  final TimeOfDay selectedTime; // 선택한 시간을 받을 변수 추가
+  final TimeOfDay selectedTime;
+
   @override
   InputFormScreenState createState() => InputFormScreenState();
 }
 
 class InputFormScreenState extends State<InputFormScreen> {
-  // 입력받을 변수들 선언
   DateTime selectedDate = DateTime.now();
-  int day = 1; // 1: 월요일, ..., 7: 일요일
+  int? day; // 초기값 null 설정
   late TimeOfDay selectedTime;
-  int weather = 1;
+  int? weather; // 초기값 null 설정
   bool event = false; // 이벤트 여부
   bool trainArrival = false; // 기차 도착 여부
-
-  // 예측 결과를 저장할 변수
   String result = '';
-
-  // 폼 키
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -36,38 +33,33 @@ class InputFormScreenState extends State<InputFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        //title: const Text(''),
-      ),
+      appBar: AppBar( backgroundColor: const Color(0xFF87C6FE)),
       body: Stack(
         children: [
-          // 배경 화면 (버스 정류장과 버스 포함)
           Container(
             color: const Color(0xFF87C6FE),
             child: Column(
               children: [
                 SizedBox(
-                  height: 150,
+                  height: 100,
                   child: Stack(
                     children: [
                       Positioned(
-                        top: 48,
-                        left: 30,
-                        child: Image.asset('assets/img/stop02.png', height: 100),
+                        top: 0,
+                        right: 155,
+                        child: Image.asset('assets/img/stop.png', height: 100),
                       ),
                       Positioned(
-                    left: 80,
-                    top: 8,
-                    bottom: -42,
-                    child: Image.asset('assets/img/bus.png', height: 50),
-                  ),
-                      
+                        right: 0,
+                        top: -15,
+                        bottom: -42,
+                        child: Image.asset('assets/img/bus.png', height: 40),
+                      ),
                     ],
                   ),
                 ),
-                // 남은 화면 공간에 입력 폼
                 Expanded(
-                  child:Container(
+                  child: Container(
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
@@ -75,97 +67,333 @@ class InputFormScreenState extends State<InputFormScreen> {
                         topRight: Radius.circular(30),
                       ),
                     ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Form(
-                      key: _formKey,
-                      child: ListView(
-                        children: [
-                          // Date 입력
-                          ListTile(
-                            title: Text('날짜: ${DateFormat('yyyy-MM-dd').format(selectedDate)}'),
-                            trailing: const Icon(Icons.calendar_today),
-                            onTap: _pickDate,
-                          ),
-                          // Day 입력
-                          DropdownButtonFormField<int>(
-                            value: day,
-                            items: const [
-                              DropdownMenuItem(value: 1, child: Text('월요일')),
-                              DropdownMenuItem(value: 2, child: Text('화요일')),
-                              DropdownMenuItem(value: 3, child: Text('수요일')),
-                              DropdownMenuItem(value: 4, child: Text('목요일')),
-                              DropdownMenuItem(value: 5, child: Text('금요일')),
-                              DropdownMenuItem(value: 6, child: Text('토요일')),
-                              DropdownMenuItem(value: 7, child: Text('일요일')),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                day = value!;
-                              });
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: ListView(
+                          children: [
+                            // Date 입력
+                            GestureDetector(
+                                  onTap: () async {
+                                  // 날짜 선택 함수 호출
+                                  final result = await showBoardDateTimePicker(
+                                  context: context,
+                                  pickerType: DateTimePickerType.date, // 날짜 선택으로 설정
+                                  initialDate: selectedDate, // 현재 선택된 날짜로 초기화
+                                  options: const BoardDateTimeOptions(
+                                  languages: BoardPickerLanguages.en(), // 언어 설정 (영어)
+                                  pickerFormat: PickerFormat.ymd, // 연-월-일 형식
+                                  ),
+                                );
+
+                               if (result != null) {
+                                setState(() {
+                                selectedDate = result; // 선택한 날짜를 업데이트
+                                });
+                              }
                             },
-                            decoration: const InputDecoration(labelText: '요일'),
-                          ),
-                          // Time 입력
-                          ListTile(
-                            title: Text('시간: ${selectedTime.format(context)}'),
-                            trailing: const Icon(Icons.access_time),
-                            onTap: _pickTime,
-                          ),
-                          // Weather 입력
-                          DropdownButtonFormField<int>(
-                            value: weather,
-                            items: const [
-                              DropdownMenuItem(value: 1, child: Text('맑음')),
-                              DropdownMenuItem(value: 2, child: Text('흐림')),
-                              DropdownMenuItem(value: 3, child: Text('비')),
-                              DropdownMenuItem(value: 4, child: Text('눈')),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                weather = value!;
-                              });
-                            },
-                            decoration: const InputDecoration(labelText: '날씨'),
-                          ),
-                          // Event 입력
-                          SwitchListTile(
-                            title: const Text('이벤트 여부'),
-                            value: event,
-                            onChanged: (value) {
-                              setState(() {
-                                event = value;
-                              });
-                            },
-                          ),
-                          // Train Arrival 입력
-                          SwitchListTile(
-                            title: const Text('기차 도착 여부'),
-                            value: trainArrival,
-                            onChanged: (value) {
-                              setState(() {
-                                trainArrival = value;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: _submitData,
-                            child: const Text('예측하기'),
-                          ),
-                          const SizedBox(height: 20),
-                          // 결과를 표시하는 부분
-                          if (result.isNotEmpty)
-                            Text(
-                              result,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                            child: Row(
+                               children: [
+                                // 날짜 아이콘
+                                Material(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: const SizedBox(
+                                  height: 32,
+                                  width: 32,
+                                  child: Center(
+                                  child: Icon(
+                                    Icons.date_range_rounded,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                             ),
-                        ],
+                          const SizedBox(width: 12),
+                          // "날짜 선택" 텍스트
+                          const Expanded(
+                            child: Text(
+                              '날짜 선택',
+                              style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                               ),
+                              ),
+                            ),
+                        // 선택된 날짜 표시
+                        Text(
+                          DateFormat('yyyy/MM/dd').format(selectedDate),
+                          style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          ),
+                          ),
+                          ],
+                         ),
+                        ),
+                      ),
+                            // Day 입력
+                            DropdownButtonHideUnderline(
+                              child: DropdownButton2<int>(
+                                isExpanded: true,
+                                hint: const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today,
+                                      size: 16,
+                                      color: Colors.yellow,
+                                    ),
+                                    SizedBox(
+                                      width: 4,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        'Select Day',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.yellow,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: 1, child: Text('월요일')),
+                                  DropdownMenuItem(value: 2, child: Text('화요일')),
+                                  DropdownMenuItem(value: 3, child: Text('수요일')),
+                                  DropdownMenuItem(value: 4, child: Text('목요일')),
+                                  DropdownMenuItem(value: 5, child: Text('금요일')),
+                                  DropdownMenuItem(value: 6, child: Text('토요일')),
+                                  DropdownMenuItem(value: 7, child: Text('일요일')),
+                                ]
+                                    .map((DropdownMenuItem<int> item) =>
+                                        DropdownMenuItem<int>(
+                                          value: item.value,
+                                          child: Text(
+                                            (item.child as Text).data!,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: day,
+                                onChanged: (value) {
+                                  setState(() {
+                                    day = value;
+                                  });
+                                },
+                                buttonStyleData: ButtonStyleData(
+                                  height: 60,
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: Colors.black26),
+                                    color: const Color(0xFF4CAF50),
+                                  ),
+                                  elevation: 2,
+                                ),
+                                iconStyleData: const IconStyleData(
+                                  icon: Icon(Icons.arrow_forward_ios_outlined),
+                                  iconSize: 14,
+                                  iconEnabledColor: Colors.yellow,
+                                  iconDisabledColor: Colors.grey,
+                                ),
+                                dropdownStyleData: DropdownStyleData(
+                                  maxHeight: 200,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: const Color(0xFF66BB6A),
+                                  ),
+                                  scrollbarTheme: ScrollbarThemeData(
+                                    radius: const Radius.circular(40),
+                                    thickness: WidgetStateProperty.all(6),
+                                    thumbVisibility: WidgetStateProperty.all(true),
+                                  ),
+                                ),
+                                menuItemStyleData: const MenuItemStyleData(
+                                  padding: EdgeInsets.symmetric(horizontal: 14),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Weather 입력
+                            DropdownButtonHideUnderline(
+                              child: DropdownButton2<int>(
+                                isExpanded: true,
+                                hint: const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.wb_sunny,
+                                      size: 16,
+                                      color: Colors.yellow,
+                                    ),
+                                    SizedBox(
+                                      width: 4,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        'Select Weather',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.yellow,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: 1, child: Text('맑음')),
+                                  DropdownMenuItem(value: 2, child: Text('흐림')),
+                                  DropdownMenuItem(value: 3, child: Text('비')),
+                                  DropdownMenuItem(value: 4, child: Text('눈')),
+                                ]
+                                    .map((DropdownMenuItem<int> item) =>
+                                        DropdownMenuItem<int>(
+                                          value: item.value,
+                                          child: Text(
+                                            (item.child as Text).data!,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: weather,
+                                onChanged: (value) {
+                                  setState(() {
+                                    weather = value;
+                                  });
+                                },
+                                buttonStyleData: ButtonStyleData(
+                                  height: 60,
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: Colors.black26),
+                                    color: const Color(0xFF4CAF50),
+                                  ),
+                                  elevation: 2,
+                                ),
+                                iconStyleData: const IconStyleData(
+                                  icon: Icon(Icons.arrow_forward_ios_outlined),
+                                  iconSize: 14,
+                                  iconEnabledColor: Colors.yellow,
+                                  iconDisabledColor: Colors.grey,
+                                ),
+                                dropdownStyleData: DropdownStyleData(
+                                  maxHeight: 200,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: const Color(0xFF66BB6A),
+                                  ),
+                                  scrollbarTheme: ScrollbarThemeData(
+                                    radius: const Radius.circular(40),
+                                    thickness: WidgetStateProperty.all(6),
+                                    thumbVisibility: WidgetStateProperty.all(true),
+                                  ),
+                                ),
+                                menuItemStyleData: const MenuItemStyleData(
+                                  padding: EdgeInsets.symmetric(horizontal: 14),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Time 입력
+                            ListTile(
+                              title: Text(
+                                  '시간: ${selectedTime.format(context)}',style:const TextStyle(fontWeight: FontWeight.bold)),
+                              trailing: const Icon(Icons.access_time),
+                              onTap: _pickTime, // Custom Time Picker 호출
+                            ),
+                            // Event 입력
+                            SwitchListTile(
+                              title: const Text('이벤트 여부',style:TextStyle(fontWeight: FontWeight.bold)),
+                              value: event,
+                              onChanged: (value) {
+                                setState(() {
+                                  event = value;
+                                });
+                              },
+                              activeColor:Colors.yellow, // 활성화 상태의 버튼 색상
+                              activeTrackColor: const Color(0xFF87C6FE), // 활성화 상태의 트랙 색상
+                              inactiveThumbColor: const Color(0xFFC0C0C0), // 비활성화 상태의 버튼 색상
+                              inactiveTrackColor: const Color(0xFF808080), // 비활성화 상태의 트랙 색상
+                              
+                            ),
+                            // Train Arrival 입력
+                            SwitchListTile(
+                              title: const Text('기차 도착 여부',style:TextStyle(fontWeight: FontWeight.bold)),
+                              value: trainArrival,
+                              onChanged: (value) {
+                                setState(() {
+                                  trainArrival = value;
+                                });
+                              },
+                              activeColor:Colors.yellow, // 활성화 상태의 버튼 색상
+                              activeTrackColor: const Color(0xFF87C6FE), // 활성화 상태의 트랙 색상
+                              inactiveThumbColor: const Color(0xFFC0C0C0), // 비활성화 상태의 버튼 색상
+                              inactiveTrackColor: const Color(0xFF808080), // 비활성화 상태의 트랙 색상
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+  onPressed: _submitData,
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF87C6FE), // 버튼 배경색 설정
+    foregroundColor: Colors.black, // 버튼 텍스트 색상
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(60), // 버튼 모서리 둥글게 설정
+    ),
+    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16), // 내부 여백 설정
+  ),
+  child: const Row(
+    mainAxisSize: MainAxisSize.min, // 버튼 크기 최소화
+    mainAxisAlignment: MainAxisAlignment.center, // 텍스트와 아이콘 중앙 정렬
+    children: [
+      Text(
+        '예측하기',
+        style: TextStyle(
+          fontWeight: FontWeight.bold, // 글씨체 굵게 설정
+          fontSize: 16, // 글씨 크기 설정
+        ),
+      ),
+      SizedBox(width: 8), // 텍스트와 아이콘 사이 간격 설정
+      Icon(
+        Icons.search, // 돋보기 아이콘
+        size: 20, // 아이콘 크기 설정
+        color: Colors.black, // 아이콘 색상 설정
+      ),
+    ],
+  ),
+),
+
+                            const SizedBox(height: 20),
+                            if (result.isNotEmpty)
+                              Text(
+                                result,
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
                 ),
               ],
             ),
@@ -175,7 +403,6 @@ class InputFormScreenState extends State<InputFormScreen> {
     );
   }
 
-  // 날짜 선택 함수 정의
   void _pickDate() async {
     DateTime? date = await showDatePicker(
       context: context,
@@ -191,11 +418,10 @@ class InputFormScreenState extends State<InputFormScreen> {
     }
   }
 
-  // 시간 선택 함수 정의
   void _pickTime() async {
-    TimeOfDay? time = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
+    TimeOfDay? time = await showCustomTimePicker(
+      context,
+      selectedTime,
     );
 
     if (time != null) {
@@ -205,10 +431,8 @@ class InputFormScreenState extends State<InputFormScreen> {
     }
   }
 
-  // 데이터 제출 함수 정의
   void _submitData() async {
     if (_formKey.currentState!.validate()) {
-      // 데이터를 모아서 서버로 전송
       Map<String, dynamic> requestData = {
         'Date': DateFormat('yyyy-MM-dd').format(selectedDate),
         'Day': day,
@@ -219,7 +443,8 @@ class InputFormScreenState extends State<InputFormScreen> {
       };
 
       try {
-        final url = Uri.parse('https://074d-121-166-5-31.ngrok-free.app/predict');
+        final url =
+            Uri.parse('https://fc49-1-237-70-43.ngrok-free.app/predict');
         final response = await http.post(
           url,
           headers: {'Content-Type': 'application/json'},
