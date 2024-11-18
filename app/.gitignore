@@ -103,8 +103,8 @@ migrate_working_dir/
 .pub/
 /build/
 
-build/windows/x64/extracted/firebase_cpp_sdk_windows/libs/**/*.lib
-build/windows/x64/firebase_cpp_sdk_windows_12.0.0.zip
+/build/windows/x64/extracted/firebase_cpp_sdk_windows/libs/**/*.lib
+/build/windows/x64/firebase_cpp_sdk_windows_12.0.0.zip
 
 # Symbolication related
 app.*.symbols
