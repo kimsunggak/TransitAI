@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -63,32 +64,52 @@ cover/
 *.pot
 
 # Django stuff:
+=======
+# Miscellaneous
+*.class
+>>>>>>> app
 *.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
 
-# Flask stuff:
-instance/
-.webassets-cache
+# Flutter 자동 생성 파일 제외
+**/generated_plugin_registrant.dart
+**/generated_plugins.dart
 
-# Scrapy stuff:
-.scrapy
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
 
-# Sphinx documentation
-docs/_build/
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
 
-# PyBuilder
-.pybuilder/
-target/
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Symbolication related
+app.*.symbols
 
-# IPython
-profile_default/
-ipython_config.py
+# Obfuscation related
+app.*.map.json
 
+<<<<<<< HEAD
 .vscode/
 
 # Flutter 관련 임시 파일/디렉토리
@@ -151,3 +172,9 @@ cython_debug/
 
 #Firebase 서비스 계정 키 파일
 transitai-firebase-adminsdk-t5n10-5de6d0555b.json
+=======
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+>>>>>>> app
