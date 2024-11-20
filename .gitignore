@@ -1,5 +1,72 @@
+<<<<<<< HEAD
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+#가상환경 무시
+myenv/
+venv/
+.env/
+
+#환경변수 (혹시나)
+.env
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+=======
 # Miscellaneous
 *.class
+>>>>>>> app
 *.log
 *.pyc
 *.swp
@@ -35,13 +102,86 @@ migrate_working_dir/
 .pub/
 /build/
 
+/build/windows/x64/extracted/firebase_cpp_sdk_windows/libs/**/*.lib
+/build/windows/x64/firebase_cpp_sdk_windows_12.0.0.zip
+
 # Symbolication related
 app.*.symbols
 
 # Obfuscation related
 app.*.map.json
 
+<<<<<<< HEAD
+.vscode/
+
+# Flutter 관련 임시 파일/디렉토리
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/ServiceDefinitions.json
+windows/flutter/ephemeral/
+
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+#Firebase 서비스 계정 키 파일
+transitai-firebase-adminsdk-t5n10-5de6d0555b.json
+=======
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
 /android/app/release
+>>>>>>> app
+/ai-service/
+android/
+ios/
+macos/
+windows/
