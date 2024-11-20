@@ -3,6 +3,7 @@ import 'package:app/realtimeGraph.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'InputFormScreen.dart';
 import 'login_screen.dart';
 import 'bus_schedule_screen.dart';
 import 'start_giheung_15.dart'; // 기흥역 출발 (월, 금)
@@ -59,7 +60,8 @@ class MyApp extends StatelessWidget {
         '/timeDetail': (context) => const TimeDetailScreen(),
         '/chatbot': (context) => ChatScreen(),
         '/realtimeGraph': (context) => const RealTimeGraph(), // 수정된 RealTimeGraph 호출
-        '/firestore': (context) => const MyFirestoreWidget(), // Firestore 위젯 라우트 추가
+        '/firestore': (context) => const MyFirestoreWidget(),
+        '/inputFormScreen': (context) => InputFormScreen(selectedTime: TimeOfDay.now()), // InputFormScreen 라우트 추가
       },
     );
   }

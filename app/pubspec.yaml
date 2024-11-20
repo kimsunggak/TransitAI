@@ -24,6 +24,7 @@ dependencies:
   dropdown_button2: ^2.3.9
   numberpicker: ^2.1.0
   board_datetime_picker: ^2.1.5
+  material_design_icons_flutter: ^5.0.0
   
 
 dev_dependencies:
