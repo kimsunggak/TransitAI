@@ -1,5 +1,5 @@
-import 'my_firestore_widget.dart';
-import 'realtimeGraph.dart';
+import 'package:app/my_firestore_widget.dart';
+import 'package:app/realtimeGraph.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
