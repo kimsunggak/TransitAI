@@ -32,7 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
   TextEditingController _controller = TextEditingController();
 
   // 서버 URL 설정 (ngrok URL로 변경)
-  final String serverUrl = 'ngrok URL 입력/chat';
+  final String serverUrl = 'https://5260-211-238-109-139.ngrok-free.app/chat';
   // 고정된 user_id사용(테스트를 위해)
   final String userId = 'rlaskdus';
   Future<String> sendMessageToServer(String mssage) async {
