@@ -463,7 +463,7 @@ class InputFormScreenState extends State<InputFormScreen> with TickerProviderSta
       };
 
       try {
-        final url = Uri.parse('https://5260-211-238-109-139.ngrok-free.app/predict');
+        final url = Uri.parse('ngrok 주소');
         final response = await http.post(
           url,
           headers: {'Content-Type': 'application/json'},
