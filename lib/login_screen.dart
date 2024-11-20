@@ -20,7 +20,7 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   // 로고 이미지
                   Image.asset(
-                    'assets/img/logo.png',
+                    'assets/img/logo3.png',
                     height: 150,
                     fit: BoxFit.contain,
                   ),
