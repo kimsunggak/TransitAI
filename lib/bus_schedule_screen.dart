@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class BusScheduleScreen extends StatelessWidget {
   const BusScheduleScreen({super.key});
@@ -91,8 +92,8 @@ class BusScheduleScreen extends StatelessWidget {
                             // 기흥역 출발 버튼
                             _buildCustomButton(
                               context,
-                              Icons.access_time, // 시계 아이콘
-                              '기흥역(4번 출구) 출발',
+                              MdiIcons.robot,  // 시계 아이콘
+                              '대기인원 예측',
                               '',
                                '/inputFormScreen', // 라우트 변경
                             ),
