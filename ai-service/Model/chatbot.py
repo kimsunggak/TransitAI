@@ -13,7 +13,7 @@ class TaxiMatchingChatBot:
     def __init__(self, api_key: str):
 
         self.llm = ChatOpenAI(
-            model_name = "gpt-4o",
+            model_name = "gpt-o1",
             openai_api_key = api_key,
             temperature = 0.7
         )
