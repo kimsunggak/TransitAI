@@ -15,6 +15,7 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
   String? selectedDate; // 날짜
   String? selectedTime; // 시간 입력
   List<String> filteredTimes = [];
+  bool showErrorMessage = false; // 에러 메시지 표시 여부
 
   final List<String> days = ['1', '2', '3', '4', '5']; // 요일 리스트 (월요일=1, 화요일=2 등)
   final TextEditingController timeController = TextEditingController();
@@ -22,7 +23,6 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
   late AnimationController _controller;
   late Animation<double> _animation;
 
-  
   @override
   void initState() {
     super.initState();
@@ -45,6 +45,7 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
   @override
   void dispose() {
     _controller.dispose(); // 애니메이션 컨트롤러 해제
+    timeController.dispose();
     super.dispose();
   }
 
@@ -65,6 +66,33 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
     return times;
   }
 
+  Future<String> getPreviousDate(String date) async {
+    final currentDate = DateTime.parse(date);
+    final previousWeekDate = currentDate.subtract(const Duration(days: 7));
+    return "${previousWeekDate.year}-${previousWeekDate.month.toString().padLeft(2, '0')}-${previousWeekDate.day.toString().padLeft(2, '0')}";
+  }
+
+  Future<List<QuerySnapshot>> fetchCurrentAndPreviousData(
+      String currentDate, String day, List<String> times) async {
+    final previousDate = await getPreviousDate(currentDate);
+
+    // 현재 날짜와 전주 날짜 데이터를 병렬로 가져옴
+    return Future.wait([
+      FirebaseFirestore.instance
+          .collection('database')
+          .where('Date', isEqualTo: currentDate)
+          .where('Day', isEqualTo: day)
+          .where('Time', whereIn: times)
+          .get(),
+      FirebaseFirestore.instance
+          .collection('database')
+          .where('Date', isEqualTo: previousDate)
+          .where('Day', isEqualTo: day)
+          .where('Time', whereIn: times)
+          .get(),
+    ]);
+  }
+
   Future<void> pickDate() async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -75,7 +103,8 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
 
     if (pickedDate != null) {
       setState(() {
-        selectedDate = "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+        selectedDate =
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -137,7 +166,7 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                       onTap: pickDate,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFF66BB6A), 
+                          color: const Color(0xFF66BB6A),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.black26),
                         ),
@@ -181,9 +210,9 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                'Select Day',
+                                '요일을 선택하세요',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFFFFC84A),
                                 ),
@@ -218,14 +247,12 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(color: Colors.black26),
-                            color: const Color(0xFF66BB6A), // 드롭다운 버튼 회색
+                            color: const Color(0xFF66BB6A),
                           ),
                           elevation: 2,
                         ),
                         iconStyleData: const IconStyleData(
-                          icon: Icon(
-                            Icons.arrow_forward_ios_outlined,
-                          ),
+                          icon: Icon(Icons.arrow_forward_ios_outlined),
                           iconSize: 14,
                           iconEnabledColor: Color(0xFFFFC84A),
                           iconDisabledColor: Colors.grey,
@@ -234,7 +261,7 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                           maxHeight: 200,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
-                            color: const Color(0xFF66BB6A), // 드롭다운 메뉴 회색
+                            color: const Color(0xFF66BB6A),
                           ),
                           offset: const Offset(-20, 0),
                           scrollbarTheme: ScrollbarThemeData(
@@ -278,30 +305,41 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                       onSubmitted: onTimeSubmitted, // 시간 입력 완료 시 처리
                     ),
                   ),
+                  // 에러 메시지 표시
+                  if (showErrorMessage)
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "날짜와 요일을 다시 입력해주세요",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   // 그래프 영역
                   Expanded(
-                    child: StreamBuilder(
-                      stream: (selectedDate != null && selectedDay != null && filteredTimes.isNotEmpty)
-                          ? FirebaseFirestore.instance
-                              .collection('database')
-                              .where('Date', isEqualTo: selectedDate)
-                              .where('Day', isEqualTo: selectedDay)
-                              .where('Time', whereIn: filteredTimes)
-                              .snapshots()
+                    child: FutureBuilder(
+                      future: (selectedDate != null &&
+                              selectedDay != null &&
+                              filteredTimes.isNotEmpty)
+                          ? fetchCurrentAndPreviousData(
+                              selectedDate!, selectedDay!, filteredTimes)
                           : null,
-                      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      builder: (context, AsyncSnapshot<List<QuerySnapshot>> snapshot) {
                         if (selectedDate == null || selectedDay == null || selectedTime == null) {
                           // 초기 상태일 때 아무것도 표시하지 않음
                           return const SizedBox.shrink();
                         }
-
+                      
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(
                             child: CircularProgressIndicator(), // 로딩 중 상태
                           );
                         }
 
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        if (!snapshot.hasData || snapshot.data!.any((qs) => qs.docs.isEmpty)) {
                           return const Center(
                             child: Text(
                               "날짜와 요일을 다시 선택하세요",
@@ -313,42 +351,69 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                             ),
                           );
                         }
+                        final currentDocs = snapshot.data![0].docs;
+                        final previousDocs = snapshot.data![1].docs;
 
-                        final docs = snapshot.data!.docs;
-                        docs.sort((a, b) => timeToMinutes(a['Time']).compareTo(timeToMinutes(b['Time'])));
+                        final xAxisTimes = currentDocs
+                            .map((doc) => doc['Time'] as String)
+                            .toList(); // 데이터베이스에 존재하는 시간대만 가져옴
 
-                        List<BarChartGroupData> barGroups = docs.asMap().entries.map((entry) {
+                        Map<String, double> currentData = {
+                          for (var doc in currentDocs)
+                            doc['Time']: double.parse(doc['Waiting_Passengers']),
+                        };
+                        Map<String, double> previousData = {
+                          for (var doc in previousDocs)
+                            doc['Time']: double.parse(doc['Waiting_Passengers']),
+                        };
+
+                        List<BarChartGroupData> barGroups = xAxisTimes.asMap().entries.map((entry) {
                           int index = entry.key;
-                          final doc = entry.value;
-                          final y = double.parse(doc['Waiting_Passengers']);
+                          String time = entry.value;
+
+                          double currentValue = currentData[time] ?? 0.0;
+                          double previousValue = previousData[time] ?? 0.0;
+
                           return BarChartGroupData(
-                            x: index,
-                            barRods: [
-                              BarChartRodData(
-                                toY: y,
-                                width: 12,
-                                gradient: const LinearGradient(
-                                  colors: [Colors.blue, Colors.cyan],
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ],
-                          );
-                        }).toList();
+                        x: index,
+                      barRods: [
+                        // 과거 데이터가 왼쪽
+                        BarChartRodData(
+                          toY: previousValue,
+                          width: 12,
+                          gradient: const LinearGradient(
+                          colors: [Colors.orange, Colors.red], // 과거 데이터 색상
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                          ),
+                         // 현재 데이터가 오른쪽
+                      BarChartRodData(
+                          toY: currentValue,
+                          width: 12,
+                          gradient: const LinearGradient(
+                          colors: [Colors.blue, Colors.cyan], // 현재 데이터 색상
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                          ),
+                        ],
+                      );}).toList();
 
                         return Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: BarChart(
                             BarChartData(
-                              maxY: docs.map((doc) => double.parse(doc['Waiting_Passengers'])).reduce((a, b) => a > b ? a : b),
+                              maxY: currentDocs
+                                  .map((doc) => double.parse(doc['Waiting_Passengers']))
+                                  .reduce((a, b) => a > b ? a : b),
                               barGroups: barGroups,
                               titlesData: FlTitlesData(
                                 leftTitles: AxisTitles(
                                   sideTitles: SideTitles(
                                     showTitles: true,
-                                    reservedSize: 40,
                                     getTitlesWidget: (value, meta) {
                                       return Text(
                                         value.toInt().toString(),
@@ -361,10 +426,9 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                                   sideTitles: SideTitles(
                                     showTitles: true,
                                     getTitlesWidget: (value, meta) {
-                                      if (value.toInt() < docs.length) {
-                                        final timeString = docs[value.toInt()]['Time'];
+                                      if (value.toInt() < xAxisTimes.length) {
                                         return Text(
-                                          timeString,
+                                          xAxisTimes[value.toInt()],
                                           style: const TextStyle(fontSize: 10, color: Colors.black),
                                         );
                                       }
@@ -389,19 +453,18 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                               barTouchData: BarTouchData(
                                 enabled: true,
                                 touchTooltipData: BarTouchTooltipData(
-                                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                                    return BarTooltipItem(
-                                      'Time: ${docs[groupIndex]['Time']}\n',
-                                      const TextStyle(color: Colors.black),
-                                      children: [
-                                        TextSpan(
-                                          text: 'Passengers: ${rod.toY.toInt()}',
-                                          style: const TextStyle(color: Colors.blue),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
+                                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                // rodIndex가 0일 때 과거 데이터, 1일 때 현재 데이터
+                                final isPrevious = rodIndex == 0; // 과거 데이터는 첫 번째 막대
+                                 return BarTooltipItem(
+                                  isPrevious
+                                    ? 'Previous: ${rod.toY.toInt()}'
+                                    : 'Current: ${rod.toY.toInt()}',
+                                    const TextStyle(color: Colors.black),
+                                  );
+                                },
+                              ),
+
                               ),
                             ),
                           ),
