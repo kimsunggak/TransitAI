@@ -366,6 +366,7 @@ class _RealTimeGraphState extends State<RealTimeGraph> with SingleTickerProvider
                           for (var doc in previousDocs)
                             doc['Time']: double.parse(doc['Waiting_Passengers']),
                         };
+                        final List<String> sortedTimes = xAxisTimes..sort((a, b) => a.compareTo(b));
 
                         List<BarChartGroupData> barGroups = xAxisTimes.asMap().entries.map((entry) {
                           int index = entry.key;
