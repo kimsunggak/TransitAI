@@ -19,7 +19,7 @@ class TaxiMatchingChatBot:
 
         self.prompt = PromptTemplate(
             # 프롬프트에서 사용될 변수들
-            input_variables=["history", "user_input", "collected_info", "num_recommendations"],
+            input_variables=["history", "user_input", "collected_info", "num_recommendations","recommendations_info"],
             template="""
 당신은 택시 동승 매칭 서비스의 챗봇입니다.
 사용자와 대화를 통해 다음 정보를 수집하고, 매칭 가능한 사용자들을 추천하세요.:
@@ -32,7 +32,7 @@ class TaxiMatchingChatBot:
 {collected_info}
 
 매칭된 사용자가 {num_recommendations}명 있습니다.
-
+매칭 가능한 사용자들의 정보 : {recommendations_info}
 친절하고 공손한 말투로 답변하세요.
 
 **응답 형식:**
@@ -124,8 +124,8 @@ class TaxiMatchingChatBot:
         # 현재까지 수집된 사용자 정보
         if collected_info is None:
             collected_info = {"departure": "미정", "arrival": "미정", "time": "미정"}
-        # 수집된 정보를 문자열로 변환
         collected_info_str = '\n'.join([f"{key}:{value}" for key, value in collected_info.items()])
+
         # 다른 사용자들의 정보 가져오기
         all_users_info = get_all_collected_info(current_user_id)
         print("다른 사용자들의 정보:", all_users_info)
@@ -135,15 +135,20 @@ class TaxiMatchingChatBot:
         num_recommendations = len(recommendations)
         collected_info["recommendations"] = recommendations
 
-        # 수집된 정보 업데이트
+        # 매칭 가능한 사용자들의 정보 준비
+        recommendations_info = ""
+        for idx, user in enumerate(recommendations, 1):
+            info = f"{idx}. 도착지: {user['user_arrival']}, 출발 시간: {user['user_time']}"
+            recommendations_info += info + "\n"
+
         bot_response = ""
         extracted_info = {}
         try:
-            # 정의된 체인을 실행하여 최종적인 응답 생성
             response = self.chain.invoke({
                 "history": history,
                 "user_input": user_input,
                 "collected_info": collected_info_str,
+                "recommendations_info": recommendations_info.strip(),
                 "num_recommendations": num_recommendations
             })
             bot_response, extracted_info = self.parse_response(response)
@@ -155,40 +160,41 @@ class TaxiMatchingChatBot:
             if extracted_info.get(key) and extracted_info[key] != '미정':
                 collected_info[key] = extracted_info[key]
 
-        # 매칭 가능한 사용자 찾기
+        # 업데이트된 정보로 다시 매칭 가능한 사용자 찾기
         recommendations = find_matching_users(collected_info, all_users_info)
         num_recommendations = len(recommendations)
         collected_info['recommendations'] = recommendations
 
-        if num_recommendations > 0 and not collected_info.get('매칭 인원 선택 중') and not collected_info.get('매칭 진행 중'):
-            # 매칭 가능한 사용자 수를 알려주고 몇 명과 매칭할 것인지 묻기
-            bot_response = f"매칭 가능한 이용자가 {num_recommendations}명 있습니다. 몇 명과 매칭을 원하시나요?"
-            collected_info['매칭 인원 선택 중'] = True
+        # 매칭 가능한 사용자들의 정보 재준비
+        recommendations_info = ""
+        for idx, user in enumerate(recommendations, 1):
+            info = f"{idx}. 도착지: {user['user_arrival']}, 출발 시간: {user['user_time']}"
+            recommendations_info += info + "\n"
+
+        if num_recommendations > 0 and not collected_info.get('매칭 사용자 선택 중') and not collected_info.get('매칭 진행 중'):
+            # 매칭 가능한 사용자들의 정보를 제공하고 선택 요청
+            bot_response = f"매칭 가능한 이용자가 {num_recommendations}명 있습니다. 다음 사용자들과 매칭 가능합니다:\n{recommendations_info}\n매칭을 원하는 사용자의 번호를 모두 선택해주세요. 예: 1,3"
+            collected_info['매칭 사용자 선택 중'] = True
             return bot_response, collected_info
-        elif collected_info.get('매칭 인원 선택 중'):
+        elif collected_info.get('매칭 사용자 선택 중'):
+            # 사용자의 선택을 파싱
+            selected_indices = user_input.replace(" ", "").split(",")
             try:
-                # 사용자가 원하는 매칭 인원 수를 입력받음
-                num_to_match = int(user_input.strip())
-                if num_to_match > num_recommendations or num_to_match <= 0:
-                    bot_response = f"죄송하지만 매칭 가능한 최대 인원은 {num_recommendations}명입니다. 1 이상 {num_recommendations} 이하의 숫자를 입력해주세요."
+                selected_indices = [int(idx) - 1 for idx in selected_indices]
+                if any(idx < 0 or idx >= num_recommendations for idx in selected_indices):
+                    bot_response = f"유효하지 않은 번호가 포함되어 있습니다. 1부터 {num_recommendations} 사이의 숫자를 입력해주세요."
                     return bot_response, collected_info
                 else:
-                    # 선택한 인원 수만큼 매칭 진행
-                    selected_recommendations = recommendations[:num_to_match]
+                    selected_recommendations = [recommendations[idx] for idx in selected_indices]
                     collected_info['selected_recommendations'] = selected_recommendations
-                    collected_info.pop('매칭 인원 선택 중', None)
+                    collected_info.pop('매칭 사용자 선택 중', None)
 
-                    # 선택한 사용자들의 정보를 보여줌
-                    info_list = []
-                    for idx, user in enumerate(selected_recommendations, 1):
-                        info = f"{idx}. 도착지: {user['user_arrival']}, 출발 시간: {user['user_time']}"
-                        info_list.append(info)
-                    bot_response = "선택하신 사용자들의 정보입니다:\n" + "\n".join(info_list)
-                    bot_response += "\n매칭을 진행하시겠습니까? (예/아니오)"
+                    # 매칭 진행 여부 확인
+                    bot_response = "선택하신 사용자들과 매칭을 진행하시겠습니까? (예/아니오)"
                     collected_info['매칭 진행 중'] = True
                     return bot_response, collected_info
             except ValueError:
-                bot_response = "숫자로 입력해주세요. 몇 명과 매칭을 원하시나요?"
+                bot_response = "숫자로 입력해주세요. 예: 1,3"
                 return bot_response, collected_info
         elif collected_info.get('매칭 진행 중'):
             if user_input.strip() in ["예", "네", "동의", "좋아요"]:
@@ -197,7 +203,7 @@ class TaxiMatchingChatBot:
                 all_times = [collected_info['time']]
                 for user in selected_recommendations:
                     all_times.append(user['user_time'])
-                
+
                 # 출발 시간 평균 계산
                 time_format = "%H:%M"
                 total_seconds = 0
@@ -215,7 +221,7 @@ class TaxiMatchingChatBot:
                 for user in selected_recommendations:
                     matched_user_message = (f"매칭이 완료되었습니다! 기흥역 택시승강장으로 {average_time}까지 오시면 됩니다. 즐거운 여행 되세요!")
                     self.send_message_to_user(user['user_id'], matched_user_message)
-                    # 상대방의 정보도 업데이트
+                    # 상대방의 정보 업데이트
                     self.update_user_info(user['user_id'], {
                         'departure': '기흥역 택시승강장',
                         'arrival': user['user_arrival'],
