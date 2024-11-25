@@ -66,7 +66,8 @@ class TaxiMatchingChatBot:
                 "history": RunnablePassthrough(),
                 "user_input": RunnablePassthrough(),
                 "collected_info": RunnablePassthrough(),
-                "num_recommendations": RunnablePassthrough()
+                "num_recommendations": RunnablePassthrough(),
+                "recommendations_info": RunnablePassthrough()
             }
             # 체인 연산자
             | self.prompt
