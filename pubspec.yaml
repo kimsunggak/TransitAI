@@ -5,27 +5,29 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.3
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
   intl: ^0.19.0
-  http: ^1.2.2
+  http: ^1.2.1
   sqflite: ^2.4.0
-  syncfusion_flutter_chat:
+  syncfusion_flutter_chat: any
   fl_chart: ^0.69.0
-  firebase_core: ^3.6.0
-  cloud_firestore: ^5.4.5
-  cloud_functions: ^5.1.4
-  firebase_data_connect: ^0.1.2+2
+
+  # Firebase dependencies with resolved conflicts
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.3.3
+  cloud_firestore: ^5.5.0
+  firebase_storage: ^12.3.6
+  cloud_functions: ^5.1.5
   logging: ^1.0.2
   dropdown_button2: ^2.3.9
   numberpicker: ^2.1.0
   board_datetime_picker: ^2.1.5
   material_design_icons_flutter: ^5.0.0
-  
 
 dev_dependencies:
   flutter_test:
