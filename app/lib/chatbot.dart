@@ -2,23 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-void main() {
-  runApp(const ChatBotApp());
-}
-
-class ChatBotApp extends StatelessWidget {
-  const ChatBotApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: ChatScreen(),
-    );
-  }
-}
-
 class ChatScreen extends StatefulWidget {
-  ChatScreen({Key? key}) : super(key: key);
+  final String userId;
+
+  ChatScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -32,15 +19,17 @@ class _ChatScreenState extends State<ChatScreen> {
   TextEditingController _controller = TextEditingController();
 
   // 서버 URL 설정 (ngrok URL로 변경)
-  final String serverUrl = 'https://5260-211-238-109-139.ngrok-free.app/chat';
-  // 고정된 user_id사용(테스트를 위해)
-  final String userId = 'test2';
-  Future<String> sendMessageToServer(String mssage) async {
+  final String serverUrl = 'https://f8ed-211-238-109-139.ngrok-free.app/chat';
+
+  // 생성자를 통해 전달된 userId 사용
+  String get userId => widget.userId;
+
+  Future<String> sendMessageToServer(String message) async {
     try {
       final response = await http.post(
         Uri.parse(serverUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'user_id':userId, 'message': mssage}),
+        body: jsonEncode({'user_id': userId, 'message': message}),
       );
 
       if (response.statusCode == 200) {

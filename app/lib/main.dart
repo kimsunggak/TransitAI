@@ -58,10 +58,20 @@ class MyApp extends StatelessWidget {
         '/busSchedule': (context) => const BusScheduleScreen(),
         '/giheungDeparture15': (context) => const GiheungDepartureScreen15(),
         '/timeDetail': (context) => const TimeDetailScreen(),
-        '/chatbot': (context) => ChatScreen(),
-        '/realtimeGraph': (context) => const RealTimeGraph(), // 수정된 RealTimeGraph 호출
+        '/realtimeGraph': (context) => const RealTimeGraph(),
         '/firestore': (context) => const MyFirestoreWidget(),
-        '/inputFormScreen': (context) => InputFormScreen(selectedTime: TimeOfDay.now()), // InputFormScreen 라우트 추가
+        '/inputFormScreen': (context) => InputFormScreen(selectedTime: TimeOfDay.now()),
+        // '/chatbot' 라우트를 제거합니다.
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/chatbot') {
+          final userId = settings.arguments as String;
+          return MaterialPageRoute(
+            builder: (context) => ChatScreen(userId: userId),
+          );
+        }
+        // 다른 라우트 처리
+        return null; // 라우트를 찾지 못한 경우 null 반환
       },
     );
   }

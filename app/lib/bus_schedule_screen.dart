@@ -6,6 +6,7 @@ class BusScheduleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String userID = ModalRoute.of(context)?.settings.arguments as String? ?? 'defaultUserID';
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -113,6 +114,7 @@ class BusScheduleScreen extends StatelessWidget {
                               'AI 택시 매칭',
                               '',
                               '/chatbot',
+                              userID: userID, // userID 전달
                             ),
                           ],
                         ),
@@ -129,24 +131,31 @@ class BusScheduleScreen extends StatelessWidget {
   }
 
   // 버튼 생성 함수
-  Widget _buildCustomButton(
+    Widget _buildCustomButton(
     BuildContext context,
-    IconData icon, // 아이콘 데이터 추가
+    IconData icon,
     String title,
     String subtitle,
     String route, {
-    TimeOfDay? selectedTime, // optional 파라미터로 selectedTime 추가
+    TimeOfDay? selectedTime,
+    String? userID, // userID 추가
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFC84A), // 버튼 배경색
-        borderRadius: BorderRadius.circular(30), // 둥근 모서리
+        color: const Color(0xFFFFC84A),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: InkWell(
         onTap: () {
-          if (route == '/pastGraph') {
+          if (route == '/chatbot') {
+            Navigator.pushNamed(
+              context,
+              route,
+              arguments: userID, // userID를 전달
+            );
+          } else if (route == '/pastGraph') {
             Navigator.pushNamed(
               context,
               route,
